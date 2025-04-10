@@ -1,28 +1,42 @@
+from sklearn.decomposition import PCA
 from sklearn.svm import SVC
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+from sklearn.model_selection import train_test_split
+import numpy as np
 
-def svm_baseline(X_train, y_train, X_test, y_test, kernel='linear'):
-    """
-    Train and evaluate an SVM baseline model for image classification.
-    """
-    # Flatten images: (samples, height, width, channels) -> (samples, features)
-    num_train_samples = X_train.shape[0]
-    num_test_samples = X_test.shape[0]
+# Flatten images for PCA and SVM
+def flatten_images(X):
+    return X.reshape(X.shape[0], -1)
 
-    X_train_flat = X_train.reshape(num_train_samples, -1)
-    X_test_flat = X_test.reshape(num_test_samples, -1)
+# Apply PCA + SVM
+def train_pca_svm(X_train, y_train, X_test, y_test, n_components=0.95):
+    print(">> Flattening images...")
+    X_train_flat = flatten_images(X_train)
+    X_test_flat = flatten_images(X_test)
 
-    print(f"Training SVM with kernel = '{kernel}' on flattened images...")
+    print(f">> Applying PCA with {n_components} components...")
+    pca = PCA(n_components=n_components)
 
-    model = SVC(kernel=kernel)
+    print(">> Training SVM...")
+    svm = SVC(kernel='rbf', C=1.0, gamma='scale')
+
+    # Create pipeline
+    model = Pipeline([
+        ('pca', pca),
+        ('svm', svm)
+    ])
+
     model.fit(X_train_flat, y_train)
-
     y_pred = model.predict(X_test_flat)
 
-    accuracy = accuracy_score(y_test, y_pred)
-    print(f"\nSVM Accuracy: {accuracy:.4f}")
-
-    print("\nClassification Report:")
+    # Evaluation
+    print(">> Classification Report:")
     print(classification_report(y_test, y_pred))
+
+    print(">> Confusion Matrix:")
+    print(confusion_matrix(y_test, y_pred))
+
+    print(f">> Accuracy: {accuracy_score(y_test, y_pred):.4f}")
 
     return model
