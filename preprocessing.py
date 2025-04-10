@@ -1,79 +1,38 @@
+import matplotlib.pyplot as plt
+import seaborn as sns
 import numpy as np
-import cv2
-import random
+from collections import Counter
+from sklearn.metrics import confusion_matrix
 
-# Preprocessing Functions
-def apply_clahe(img):
-    if len(img.shape) == 3:
-        img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
-    img = clahe.apply(img)
-    img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
-    return img
+def show_samples_per_class(images, labels, class_names, samples_per_class=5):
+    plt.figure(figsize=(15, 8))
+    num_classes = len(class_names)
 
-def normalize_images(images):
-    images = images.astype('float32')
-    return images / 255.0
+    for class_index, class_name in enumerate(class_names):
+        class_imgs = images[labels == class_index]
 
-def preprocess_image(img):
-    img = apply_clahe(img)
-    return img
+        for i in range(samples_per_class):
+            idx = class_index * samples_per_class + i + 1
+            plt.subplot(num_classes, samples_per_class, idx)
+            plt.imshow(class_imgs[i])
+            plt.axis('off')
+            plt.title(class_name, fontsize=10)
 
-def preprocess_dataset(images):
-    return np.array([preprocess_image(img) for img in images])
+    plt.suptitle("Sample Images Per Class")
+    plt.tight_layout()
+    plt.subplots_adjust(top=0.9)  # Adjust to fit suptitle
+    plt.show()
 
-#Augmentating data
-AUGMENT_COUNT = 2  # Number of augmented images per original image
+# Plot class distribution
+def plot_class_distribution(y, class_names, title="Class Distribution"):
+    counts = Counter(y)
+    labels = [class_names[i] for i in range(len(class_names))]
+    values = [counts[i] for i in range(len(class_names))]
 
-def random_transform(img):
-    rows, cols, _ = img.shape
-
-    # Random rotation
-    angle = random.uniform(-30, 30)
-    M_rot = cv2.getRotationMatrix2D((cols / 2, rows / 2), angle, 1)
-    img = cv2.warpAffine(img, M_rot, (cols, rows), borderMode=cv2.BORDER_REFLECT)
-
-    # Random shift
-    dx = int(random.uniform(-0.1, 0.1) * cols)
-    dy = int(random.uniform(-0.1, 0.1) * rows)
-    M_trans = np.float32([[1, 0, dx], [0, 1, dy]])
-    img = cv2.warpAffine(img, M_trans, (cols, rows), borderMode=cv2.BORDER_REFLECT)
-
-    # Horizontal flip
-    if random.random() < 0.5:
-        img = cv2.flip(img, 1)
-
-    return img
-
-def augment_data(X_train, y_train):
-    augmented_images = []
-    augmented_labels = []
-
-    for img, label in zip(X_train, y_train):
-        for _ in range(AUGMENT_COUNT):
-            aug_img = random_transform(img)
-            augmented_images.append(aug_img)
-            augmented_labels.append(label)
-
-    X_aug = np.array(augmented_images)
-    y_aug = np.array(augmented_labels)
-
-    X_total = np.concatenate((X_train, X_aug), axis=0)
-    y_total = np.concatenate((y_train, y_aug), axis=0)
-
-    return X_total, y_total
-
-#preprocessing data
-def preprocess_data(X_train, y_train, X_test, y_test):
-    print(">> Preprocessing training and test sets...")
-    X_train = preprocess_dataset(X_train)
-    X_test = preprocess_dataset(X_test)
-
-    print(">> Normalizing...")
-    X_train = normalize_images(X_train)
-    X_test = normalize_images(X_test)
-
-    print(">> Augmenting training data...")
-    X_train, y_train = augment_data(X_train, y_train)
-
-    return X_train, y_train, X_test, y_test
+    plt.figure(figsize=(8, 4))
+    plt.bar(labels, values, color='skyblue')
+    plt.title(title)
+    plt.xlabel("Classes")
+    plt.ylabel("Number of Images")
+    plt.grid(axis='y')
+    plt.show()
