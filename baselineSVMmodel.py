@@ -1,9 +1,8 @@
+from scipy.linalg import solve
 from sklearn.decomposition import PCA
 from sklearn.svm import SVC
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
-from sklearn.model_selection import train_test_split
-import numpy as np
 
 # Flatten images for PCA and SVM
 def flatten_images(X):
