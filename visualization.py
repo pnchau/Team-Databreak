@@ -1,28 +1,23 @@
 import matplotlib.pyplot as plt
-import numpy as np
 from collections import Counter
 
+def show_samples_per_class(images, labels, class_names, samples_per_class=5):
+    plt.figure(figsize=(15, 8))
+    num_classes = len(class_names)
 
-# Show a few sample images per class
-def show_samples_per_class(X, y, class_names, samples_per_class=2):
-    plt.figure(figsize=(12, 6))
-    shown = {cls: 0 for cls in range(len(class_names))}
-    total_needed = samples_per_class * len(class_names)
-    count = 0
-    i = 0
+    for class_index, class_name in enumerate(class_names):
+        class_imgs = images[labels == class_index]
 
-    while count < total_needed and i < len(X):
-        label = y[i]
-        if shown[label] < samples_per_class:
-            plt.subplot(len(class_names), samples_per_class, count + 1)
-            plt.imshow(X[i].squeeze(), cmap='gray' if X[i].shape[-1] == 1 else None)
-            plt.title(class_names[label])
+        for i in range(samples_per_class):
+            idx = class_index * samples_per_class + i + 1
+            plt.subplot(num_classes, samples_per_class, idx)
+            plt.imshow(class_imgs[i])
             plt.axis('off')
-            shown[label] += 1
-            count += 1
-        i += 1
+            plt.title(class_name, fontsize=10)
 
+    plt.suptitle("Sample Images Per Class")
     plt.tight_layout()
+    plt.subplots_adjust(top=0.9)  # Adjust to fit suptitle
     plt.show()
 
 # Plot class distribution
@@ -39,22 +34,33 @@ def plot_class_distribution(y, class_names, title="Class Distribution"):
     plt.grid(axis='y')
     plt.show()
 
-# Pixel intensity histogram (mean image per class)
-def plot_mean_intensity(X, y, class_names):
-    plt.figure(figsize=(12, 4))
+def plot_training_history(history):
+    acc = history['accuracy']
+    val_acc = history['val_accuracy']
+    loss = history['loss']
+    val_loss = history['val_loss']
+    epochs = range(1, len(acc) + 1)
 
-    for i, class_name in enumerate(class_names):
-        class_images = X[y == i]
-        mean_image = np.mean(class_images, axis=0)
-        mean_image = (mean_image * 255).astype(np.uint8)
+    plt.figure(figsize=(12, 5))
 
-        if mean_image.shape[-1] == 1:
-            mean_image = mean_image.squeeze()
+    # Accuracy plot
+    plt.subplot(1, 2, 1)
+    plt.plot(epochs, acc, 'b', label='Training acc')
+    plt.plot(epochs, val_acc, 'r', label='Validation acc')
+    plt.title('Training and Validation Accuracy')
+    plt.xlabel('Epochs')
+    plt.ylabel('Accuracy')
+    plt.legend()
 
-        plt.subplot(1, len(class_names), i + 1)
-        plt.imshow(mean_image, cmap='gray' if mean_image.ndim == 2 else None)
-        plt.title(f"Mean: {class_name}")
-        plt.axis('off')
+    # Loss plot
+    plt.subplot(1, 2, 2)
+    plt.plot(epochs, loss, 'b-', label='Training loss')
+    plt.plot(epochs, val_loss, 'r-', label='Validation loss')
+    plt.title('Training and Validation Loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.legend()
 
     plt.tight_layout()
     plt.show()
+
