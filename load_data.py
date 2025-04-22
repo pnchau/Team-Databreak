@@ -1,7 +1,7 @@
 import os
 import cv2
 import numpy as np
-
+from sklearn.utils import shuffle
 
 # Define image size
 IMG_SIZE = 256
@@ -37,12 +37,25 @@ def load_images_from_folder(folder_path):
 
     return np.array(data), np.array(labels)
 
-def load_dataset():
+def load_dataset(subset_ratio =1.0):
     train_dir = 'Brain_tumor_dataset/Training'
     test_dir = 'Brain_tumor_dataset/Testing'
 
     x_train, y_train = load_images_from_folder(train_dir)
     x_test, y_test = load_images_from_folder(test_dir)
+
+    # Shuffle and subset the data if needed
+    if subset_ratio < 1.0:
+        x_train, y_train = shuffle(x_train, y_train, random_state=42)
+        x_test, y_test = shuffle(x_test, y_test, random_state=42)
+
+        train_size = int(len(x_train) * subset_ratio)
+        test_size = int(len(x_test) * subset_ratio)
+
+        x_train = x_train[:train_size]
+        y_train = y_train[:train_size]
+        x_test = x_test[:test_size]
+        y_test = y_test[:test_size]
 
     return x_train, y_train, x_test, y_test
 
