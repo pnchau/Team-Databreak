@@ -31,7 +31,7 @@ def build_resnet50_model(input_shape=(224, 224, 3), num_classes=4):
     return model
 
 def train_resnet50_model(x_train, y_train, x_test, y_test, class_names, force_retrain=False):
-    model_path = "resnet50_brain_tumor_model.h5"
+    model_path = "resnet50_brain_tumor_model.keras"
     history_path = "resnet50_training_history.pkl"
 
     if os.path.exists(model_path) and os.path.exists(history_path) and not force_retrain:
