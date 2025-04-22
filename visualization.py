@@ -1,5 +1,7 @@
+import random
 import matplotlib.pyplot as plt
 from collections import Counter
+import numpy as np
 
 def show_samples_per_class(images, labels, class_names, samples_per_class=5):
     plt.figure(figsize=(15, 8))
@@ -64,3 +66,21 @@ def plot_training_history(history):
     plt.tight_layout()
     plt.show()
 
+def visualize_model_results(model, x_test, y_test, class_names, history, num_images=10):
+    preds = model.predict(x_test)
+    pred_labels = np.argmax(preds, axis=1)
+
+    # Random Predictions (correct + incorrect)
+    print(">> Showing random predictions (correct/incorrect):")
+    plt.figure(figsize=(20, 8))
+    for i in range(num_images):
+        idx = random.randint(0, len(x_test) - 1)
+        plt.subplot(2, 5, i + 1)
+        plt.imshow(x_test[idx].astype("uint8"))
+        plt.axis('off')
+        true_cls = class_names[y_test[idx]]
+        pred_cls = class_names[pred_labels[idx]]
+        color = "green" if pred_cls == true_cls else "red"
+        plt.title(f"Pred: {pred_cls}\nTrue: {true_cls}", color=color)
+    plt.tight_layout()
+    plt.show()
