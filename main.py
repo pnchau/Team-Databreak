@@ -1,7 +1,7 @@
 import argparse
 from load_data import load_dataset, CLASS_MAP
 from preprocessing import preprocess_for_svm, preprocess_for_resnet
-from visualization import show_samples_per_class, plot_class_distribution, plot_training_history
+from visualization import show_samples_per_class, plot_class_distribution, plot_training_history, visualize_model_results
 from baselineSVMmodel import train_pca_svm
 from resNet50 import train_resnet50_model
 
@@ -43,6 +43,9 @@ def main():
 
         print(">> Visualizing model training performance...")
         plot_training_history(history)
+
+        print(">> Visualizing model prediction...")
+        visualize_model_results(model, X_test, y_test, class_names, history)
 
     print(">> Done.")
 
