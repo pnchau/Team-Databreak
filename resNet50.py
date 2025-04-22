@@ -11,9 +11,13 @@ import pickle
 import os
 import numpy as np
 from sklearn.utils.class_weight import compute_class_weight
+from tensorflow.keras.layers import Input
+
+
 
 def build_resnet50_model(input_shape=(224, 224, 3), num_classes=4):
-    base_model = ResNet50(include_top=False, weights='imagenet', input_shape=input_shape)
+    input_layer = Input(shape=input_shape, name='input_layer')
+    base_model = ResNet50(include_top=False, weights='imagenet', input_tensor=input_layer)
 
     # Fine-tune the last few layers
     for layer in base_model.layers[-10:]:
