@@ -1,0 +1,11 @@
+# Ignore virtual environment
+envDS2/
+# Ignore datasets
+Brain_tumor_dataset/
+# Ignore model files
+*.keras
+*.h5
+# Ignore large binary files
+*.dylib
+*.so
+*.pkl
