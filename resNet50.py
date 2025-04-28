@@ -16,7 +16,7 @@ from tensorflow.keras.layers import Input
 
 
 def build_resnet50_model(input_shape=(224, 224, 3), num_classes=4):
-    input_layer = Input(shape=input_shape, name='input_layer')
+    input_layer = Input(shape=input_shape)
     base_model = ResNet50(include_top=False, weights='imagenet', input_tensor=input_layer)
 
     # Fine-tune the last few layers
@@ -62,9 +62,9 @@ def train_resnet50_model(x_train, y_train, x_test, y_test, class_names, force_re
                                          y=y_train)
     class_weight_dict = dict(enumerate(class_weights))
 
-    # Preprocess for ResNet50
-    x_train = resnet_preprocess(x_train)
-    x_test = resnet_preprocess(x_test)
+    # Preprocess for ResNet50(taken care in main)
+    #x_train = resnet_preprocess(x_train)
+    #x_test = resnet_preprocess(x_test)
 
     # Image augmentation
     datagen = ImageDataGenerator(
@@ -77,10 +77,10 @@ def train_resnet50_model(x_train, y_train, x_test, y_test, class_names, force_re
     )
     datagen.fit(x_train)
 
-    early_stop = EarlyStopping(monitor='val_accuracy', mode = 'max', patience=2, restore_best_weights=True)
+    early_stop = EarlyStopping(monitor='val_accuracy', mode = 'max', patience=5, restore_best_weights=True)
 
     history = model.fit(datagen.flow(x_train, y_train_cat, batch_size=32),
-                        epochs=8,
+                        epochs=10,
                         validation_data=(x_test, y_test_cat),
                         callbacks=[early_stop],
                         class_weight=class_weight_dict)
