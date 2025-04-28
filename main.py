@@ -1,4 +1,8 @@
 import argparse
+
+import numpy as np
+from sklearn.metrics import classification_report, accuracy_score
+
 from load_data import load_dataset, CLASS_MAP
 from preprocessing import preprocess_for_svm, preprocess_for_resnet
 from visualization import show_samples_per_class, plot_class_distribution, plot_training_history, visualize_model_results
@@ -46,6 +50,17 @@ def main():
 
         print(">> Visualizing model prediction...")
         visualize_model_results(model, X_test, y_test, class_names, history)
+
+        print(">> Evaluating model performance on Test Set...")
+        # Predict on test set
+        y_pred_probs = model.predict(X_test)
+        y_pred = np.argmax(y_pred_probs, axis=1)
+
+        print(">> Classification Report for ResNet50:")
+        print(classification_report(y_test, y_pred, target_names=class_names))
+
+        acc = accuracy_score(y_test, y_pred)
+        print(f">> Overall Test Accuracy: {acc:.4f}")
 
     print(">> Done.")
 
